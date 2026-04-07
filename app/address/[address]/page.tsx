@@ -3,11 +3,13 @@
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase";
-const supabase = getSupabase();
 import ReviewCard from "@/components/ReviewCard";
 import ReviewForm from "@/components/ReviewForm";
 
+export const dynamic = "force-dynamic";
+
 export default function Page() {
+  const supabase = getSupabase();
   const params = useParams();
   const address = decodeURIComponent(params.address as string);
 

@@ -1,7 +1,5 @@
 "use client";
 
-export const dynamic = "force-dynamic";
-
 import { useEffect, useState } from "react";
 import SearchBar from "@/components/SearchBar";
 import { getSupabase } from "@/lib/supabase";
@@ -13,6 +11,8 @@ type PlaceStats = {
   averageRating: number;
   reviewCount: number;
 };
+
+export const dynamic = "force-dynamic";
 
 export default function Home() {
   const [worstPlaces, setWorstPlaces] = useState<PlaceStats[]>([]);
