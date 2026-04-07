@@ -9,7 +9,7 @@ import ReviewForm from "@/components/ReviewForm";
 export default function SearchPageContent() {
   const supabase = getSupabase();
   const searchParams = useSearchParams();
-  const address = searchParams.get("address");
+  const address = searchParams.get("address") || "";
 
   const [reviews, setReviews] = useState<any[]>([]);
 
