@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 import type { ReviewFormProps } from "@/lib/types";
 
 function normalizeAddress(address: string) {
@@ -28,6 +28,15 @@ export default function ReviewForm({
   };
 
   const handleSubmit = async () => {
+    const supabase = getSupabase();
+
+    if (!supabase) {
+      alert(
+        "Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY."
+      );
+      return;
+    }
+
     if (!content.trim()) {
       alert("Please write a review");
       return;

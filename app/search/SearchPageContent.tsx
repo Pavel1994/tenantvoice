@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import ReviewCard from "@/components/ReviewCard";
 import ReviewForm from "@/components/ReviewForm";
-import { supabase } from "@/lib/supabase";
+import { getSupabase, hasSupabaseEnv } from "@/lib/supabase";
 import type { Review } from "@/lib/types";
 
 function normalizeAddress(address: string) {
@@ -21,6 +21,8 @@ export default function SearchPageContent() {
 
   useEffect(() => {
     if (!address) return;
+    const supabase = getSupabase();
+    if (!supabase) return;
 
     let isActive = true;
 
@@ -48,7 +50,14 @@ export default function SearchPageContent() {
       <h1 className="mb-6 text-3xl font-bold">{address}</h1>
 
       <div className="mb-6">
-        <ReviewForm address={address} />
+        {!hasSupabaseEnv ? (
+          <p className="text-red-400">
+            Supabase is not configured. Add `NEXT_PUBLIC_SUPABASE_URL` and
+            `NEXT_PUBLIC_SUPABASE_ANON_KEY` in Vercel.
+          </p>
+        ) : (
+          <ReviewForm address={address} />
+        )}
       </div>
 
       <div className="space-y-4">

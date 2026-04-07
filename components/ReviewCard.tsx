@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 import type { ReviewCardProps } from "@/lib/types";
 import Stars from "./Stars";
 
@@ -10,6 +10,7 @@ export default function ReviewCard({
   user,
   onDelete,
 }: ReviewCardProps) {
+  const supabase = getSupabase();
   const [likes, setLikes] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -18,6 +19,8 @@ export default function ReviewCard({
   const [editedIssues, setEditedIssues] = useState<string[]>([]);
 
   useEffect(() => {
+    if (!supabase) return;
+
     let isActive = true;
 
     const loadLikeState = async () => {
@@ -49,9 +52,11 @@ export default function ReviewCard({
     return () => {
       isActive = false;
     };
-  }, [review.id]);
+  }, [review.id, supabase]);
 
   useEffect(() => {
+    if (!supabase) return;
+
     let isActive = true;
 
     const loadLikes = async () => {
@@ -70,7 +75,7 @@ export default function ReviewCard({
     return () => {
       isActive = false;
     };
-  }, [review.id]);
+  }, [review.id, supabase]);
 
   const handleIssueChange = (issue: string) => {
     setEditedIssues((prev) =>
@@ -81,6 +86,8 @@ export default function ReviewCard({
   };
 
   const handleUpdate = async () => {
+    if (!supabase) return;
+
     if (!editedContent.trim()) {
       alert("Review cannot be empty");
       return;
@@ -112,6 +119,8 @@ export default function ReviewCard({
   };
 
   const handleDelete = async () => {
+    if (!supabase) return;
+
     const confirmDelete = confirm("Delete this review?");
 
     if (!confirmDelete) return;
@@ -127,6 +136,8 @@ export default function ReviewCard({
   };
 
   const handleLike = async () => {
+    if (!supabase) return;
+
     const {
       data: { user: currentUser },
     } = await supabase.auth.getUser();

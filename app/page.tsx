@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import SearchBar from "@/components/SearchBar";
-import { supabase } from "@/lib/supabase";
+import { getSupabase, hasSupabaseEnv } from "@/lib/supabase";
 import type { PlaceStats, Review } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -13,6 +13,9 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
+    const supabase = getSupabase();
+    if (!supabase) return;
+
     let isActive = true;
 
     const fetchWorstPlaces = async () => {
@@ -79,7 +82,12 @@ export default function Home() {
         <div className="mt-16 w-full">
           <h2 className="mb-4 text-2xl font-semibold">Worst rated places</h2>
 
-          {worstPlaces.length === 0 ? (
+          {!hasSupabaseEnv ? (
+            <p className="text-red-400">
+              Supabase is not configured. Add `NEXT_PUBLIC_SUPABASE_URL` and
+              `NEXT_PUBLIC_SUPABASE_ANON_KEY` in Vercel.
+            </p>
+          ) : worstPlaces.length === 0 ? (
             <p className="text-slate-400">No data yet. Add more reviews to see trends.</p>
           ) : (
             <div className="space-y-4">

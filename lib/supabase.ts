@@ -5,12 +5,20 @@ const supabaseKey =
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
 
-if (!supabaseUrl || !supabaseKey) {
-  throw new Error(
-    "Missing Supabase environment variables. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY."
-  );
-}
+let supabaseClient: ReturnType<typeof createClient> | null = null;
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+export const hasSupabaseEnv = Boolean(supabaseUrl && supabaseKey);
 
-export const getSupabase = () => supabase;
+export const getSupabase = () => {
+  if (!hasSupabaseEnv) {
+    return null;
+  }
+
+  if (!supabaseClient) {
+    supabaseClient = createClient(supabaseUrl!, supabaseKey!);
+  }
+
+  return supabaseClient;
+};
+
+export const supabase = getSupabase();

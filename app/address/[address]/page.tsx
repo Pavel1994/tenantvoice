@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import ReviewCard from "@/components/ReviewCard";
 import ReviewForm from "@/components/ReviewForm";
-import { supabase } from "@/lib/supabase";
+import { getSupabase, hasSupabaseEnv } from "@/lib/supabase";
 import type { Review } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -18,6 +18,7 @@ function normalizeAddress(address: string) {
 }
 
 export default function AddressPage() {
+  const supabase = getSupabase();
   const params = useParams<{ address: string }>();
   const address = decodeURIComponent(params.address);
   const normalizedAddress = useMemo(() => normalizeAddress(address), [address]);
@@ -26,6 +27,8 @@ export default function AddressPage() {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
+    if (!supabase) return;
+
     let isActive = true;
 
     const loadUser = async () => {
@@ -52,9 +55,11 @@ export default function AddressPage() {
       isActive = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [supabase]);
 
   useEffect(() => {
+    if (!supabase) return;
+
     let isActive = true;
 
     const loadReviews = async () => {
@@ -74,9 +79,11 @@ export default function AddressPage() {
     return () => {
       isActive = false;
     };
-  }, [normalizedAddress]);
+  }, [normalizedAddress, supabase]);
 
   useEffect(() => {
+    if (!supabase) return;
+
     const channel = supabase
       .channel(`reviews:${normalizedAddress}`)
       .on(
@@ -104,7 +111,7 @@ export default function AddressPage() {
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [normalizedAddress]);
+  }, [normalizedAddress, supabase]);
 
   const averageRating =
     reviews.length > 0
@@ -122,6 +129,8 @@ export default function AddressPage() {
   );
 
   const refreshReviews = async () => {
+    if (!supabase) return;
+
     const { data, error } = await supabase
       .from("reviews")
       .select("*")
@@ -134,6 +143,8 @@ export default function AddressPage() {
   };
 
   const handleLogin = async () => {
+    if (!supabase) return;
+
     const email = prompt("Enter your email");
 
     if (!email) return;
@@ -149,6 +160,8 @@ export default function AddressPage() {
   };
 
   const handleLogout = async () => {
+    if (!supabase) return;
+
     const { error } = await supabase.auth.signOut();
 
     if (error) {
@@ -192,7 +205,7 @@ export default function AddressPage() {
       </div>
 
       <div className="mt-4 flex items-center gap-4">
-        <span className="text-2xl">? {averageRating}</span>
+        <span className="text-2xl">★ {averageRating}</span>
         <span className="text-slate-400">({reviews.length} reviews)</span>
       </div>
 
@@ -205,7 +218,14 @@ export default function AddressPage() {
       <h2 className="mt-6 text-xl font-semibold">Write a Review</h2>
 
       <div className="mt-3">
-        <ReviewForm address={address} onSuccess={refreshReviews} />
+        {!hasSupabaseEnv ? (
+          <p className="text-red-400">
+            Supabase is not configured. Add `NEXT_PUBLIC_SUPABASE_URL` and
+            `NEXT_PUBLIC_SUPABASE_ANON_KEY` in Vercel.
+          </p>
+        ) : (
+          <ReviewForm address={address} onSuccess={refreshReviews} />
+        )}
       </div>
 
       <h2 className="mt-8 text-xl font-semibold">Reviews</h2>
