@@ -1,7 +1,8 @@
 "use client";
 
 import Stars from "./Stars";
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
+const supabase = getSupabase();
 import { useEffect, useState } from "react";
 
 export default function ReviewCard({ review, user, onDelete }: any) {

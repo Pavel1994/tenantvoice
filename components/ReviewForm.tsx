@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
+const supabase = getSupabase();
+//import { supabase } from "@/lib/supabase";
 
 export default function ReviewForm({ address, onSuccess }: any) {
   const [content, setContent] = useState("");
