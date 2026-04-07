@@ -1,11 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { getSupabase } from "@/lib/supabase";
-const supabase = getSupabase();
-//import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
+import type { ReviewFormProps } from "@/lib/types";
 
-export default function ReviewForm({ address, onSuccess }: any) {
+function normalizeAddress(address: string) {
+  return address
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, " ");
+}
+
+export default function ReviewForm({
+  address,
+  onSuccess,
+}: ReviewFormProps) {
   const [content, setContent] = useState("");
   const [rating, setRating] = useState(5);
   const [selectedIssues, setSelectedIssues] = useState<string[]>([]);
@@ -24,21 +33,19 @@ export default function ReviewForm({ address, onSuccess }: any) {
       return;
     }
 
-    const{
+    const {
       data: { user },
     } = await supabase.auth.getUser();
 
-    if(!user) {
+    if (!user) {
       alert("You must login first");
       return;
     }
 
-    const normalized = normalizeAddress(address);
-
-      const { error } = await supabase.from("reviews").insert([
+    const { error } = await supabase.from("reviews").insert([
       {
         address,
-        address_normalized: normalized,
+        address_normalized: normalizeAddress(address),
         content,
         rating,
         issues: selectedIssues,
@@ -54,23 +61,16 @@ export default function ReviewForm({ address, onSuccess }: any) {
     setContent("");
     setRating(5);
     setSelectedIssues([]);
-    onSuccess?.();
+    await onSuccess?.();
   };
 
-  function normalizeAddress(address: string) {
-    return address
-      .toLowerCase()
-      .trim()
-      .replace(/\s+/g, " ");
-  }
-
   return (
-    <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
+    <div className="rounded-xl border border-slate-700 bg-slate-800 p-4">
       <textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
         placeholder="Write review..."
-        className="w-full p-3 rounded bg-slate-900 border border-slate-700 text-white"
+        className="w-full rounded border border-slate-700 bg-slate-900 p-3 text-white"
       />
 
       <div className="mt-3 flex flex-wrap gap-4 text-white">
@@ -102,11 +102,11 @@ export default function ReviewForm({ address, onSuccess }: any) {
         </label>
       </div>
 
-      <div className="flex gap-2 mt-3">
+      <div className="mt-3 flex gap-2">
         <select
           value={rating}
           onChange={(e) => setRating(Number(e.target.value))}
-          className="bg-slate-900 p-2 rounded text-white"
+          className="rounded bg-slate-900 p-2 text-white"
         >
           <option value={5}>5</option>
           <option value={4}>4</option>
@@ -117,7 +117,7 @@ export default function ReviewForm({ address, onSuccess }: any) {
 
         <button
           onClick={handleSubmit}
-          className="bg-green-600 px-4 rounded text-white"
+          className="rounded bg-green-600 px-4 text-white"
         >
           Submit
         </button>

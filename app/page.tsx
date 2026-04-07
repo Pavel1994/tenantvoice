@@ -1,24 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import SearchBar from "@/components/SearchBar";
-import { getSupabase } from "@/lib/supabase";
-import {useRouter } from "next/navigation";
-
-type PlaceStats = {
-  address: string;
-  averageRating: number;
-  reviewCount: number;
-};
+import { supabase } from "@/lib/supabase";
+import type { PlaceStats, Review } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
 export default function Home() {
-  const supabase = getSupabase();
   const [worstPlaces, setWorstPlaces] = useState<PlaceStats[]>([]);
   const router = useRouter();
 
   useEffect(() => {
+    let isActive = true;
+
     const fetchWorstPlaces = async () => {
       const { data, error } = await supabase.from("reviews").select("*");
 
@@ -27,13 +23,10 @@ export default function Home() {
         return;
       }
 
-      const grouped: Record<
-        string,
-        { total: number; count: number }
-      > = {};
+      const grouped: Record<string, { total: number; count: number }> = {};
 
-      data.forEach((review) => {
-        const key = review.address?.trim();
+      data.forEach((review: Review) => {
+        const key = review.address.trim();
         if (!key) return;
 
         if (!grouped[key]) {
@@ -44,75 +37,73 @@ export default function Home() {
         grouped[key].count += 1;
       });
 
-      const places: PlaceStats[] = Object.entries(grouped).map(
-        ([address, stats]) => ({
+      const places = Object.entries(grouped)
+        .map(([address, stats]) => ({
           address,
           averageRating: stats.total / stats.count,
           reviewCount: stats.count,
+        }))
+        .sort((a, b) => {
+          if (a.averageRating === b.averageRating) {
+            return b.reviewCount - a.reviewCount;
+          }
+
+          return a.averageRating - b.averageRating;
         })
-      );
+        .slice(0, 5);
 
-      places.sort((a, b) => {
-        if (a.averageRating === b.averageRating) {
-          return b.reviewCount - a.reviewCount;
-        }
-        return a.averageRating - b.averageRating;
-      });
-
-      setWorstPlaces(places.slice(0, 5));
+      if (isActive) {
+        setWorstPlaces(places);
+      }
     };
 
-    fetchWorstPlaces();
+    void fetchWorstPlaces();
+
+    return () => {
+      isActive = false;
+    };
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center">
-      <div className="max-w-5xl mx-auto">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-900 px-4 text-white">
+      <div className="mx-auto max-w-5xl">
         <div className="flex flex-col items-center text-center">
-          <h1 className="text-5xl font-bold mb-4">TenantVoice</h1>
-          <p className="text-slate-400 mb-8">
-            Find the truth before you rent
-          </p>
+          <h1 className="mb-4 text-5xl font-bold">TenantVoice</h1>
+          <p className="mb-8 text-slate-400">Find the truth before you rent</p>
 
           <div className="w-full max-w-2xl">
             <SearchBar />
           </div>
         </div>
 
-        <div className="mt-16">
-          <h2 className="text-2xl font-semibold mb-4">
-            Worst rated places
-          </h2>
+        <div className="mt-16 w-full">
+          <h2 className="mb-4 text-2xl font-semibold">Worst rated places</h2>
 
           {worstPlaces.length === 0 ? (
-            <p className="text-slate-400">
-              No data yet. Add more reviews to see trends.
-            </p>
+            <p className="text-slate-400">No data yet. Add more reviews to see trends.</p>
           ) : (
             <div className="space-y-4">
               {worstPlaces.map((place, index) => (
                 <div
                   key={place.address}
                   onClick={() =>
-                    router.push(
-                      `/address/${encodeURIComponent(place.address)}`
-                    )
+                    router.push(`/address/${encodeURIComponent(place.address)}`)
                   }
-                  className="bg-slate-800 border border-slate-700 rounded-xl p-4 flex items-center justify-between cursor-pointer hover:bg-slate-700 transition"
+                  className="cursor-pointer rounded-xl border border-slate-700 bg-slate-800 p-4 transition hover:bg-slate-700"
                 >
-                  <div>
-                    <p className="text-lg font-medium hover:underline">
-                      {index + 1}. {place.address}
-                    </p>
-                    <p className="text-sm text-slate-400">
-                      {place.reviewCount} reviews
-                    </p>
-                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <p className="text-lg font-medium hover:underline">
+                        {index + 1}. {place.address}
+                      </p>
+                      <p className="text-sm text-slate-400">{place.reviewCount} reviews</p>
+                    </div>
 
-                  <div className="text-right">
-                    <p className="text-xl font-semibold text-red-400">
-                      ⭐ {place.averageRating.toFixed(1)}
-                    </p>
+                    <div className="text-right">
+                      <p className="text-xl font-semibold text-red-400">
+                        {place.averageRating.toFixed(1)} / 5
+                      </p>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -123,39 +114,3 @@ export default function Home() {
     </div>
   );
 }
-
-/*"use client";
-
-import SearchBar from "@/components/SearchBar";
-import { supabase } from "@/lib/supabase";
-
-const handleLogin = async () => {
-  const email = prompt("Enter your email");
-
-  if(!email) return;
-
-  await supabase.auth.signInWithOtp({
-    email,
-  });
-
-  alert("Check your email");
-
-  <button onClick={handleLogin} className="mb-4 bg-green-600 px-4 py-2 rounded">Login</button>
-}
-
-export default function Home() {
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-900 text-white px-4">
-      <h1 className="text-5xl font-bold mb-4">TenantVoice</h1>
-      <p className="text-slate-400 mb-8">
-        Find the truth before you rent
-      </p>
-
-      <div className="w-full max-w-2xl">
-        <SearchBar />
-      </div>
-    </div>
-
-    
-  );
-}*/
