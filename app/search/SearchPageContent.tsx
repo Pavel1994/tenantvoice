@@ -1,32 +1,21 @@
 "use client";
 
-import { Suspense } from "react";
-import SearchPageContent from "./SearchPageContent";
-
-export default function Page() {
-  return (
-    <Suspense fallback={<div className="text-white p-10">Loading...</div>}>
-      <SearchPageContent />
-    </Suspense>
-  );
-}
-
-//import { useSearchParams } from "next/navigation";
-//import { useEffect, useState } from "react";
-/*import { getSupabase } from "@/lib/supabase";
-const supabase = getSupabase();
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { getSupabase } from "@/lib/supabase";
 import ReviewCard from "@/components/ReviewCard";
-import ReviewForm from "@/components/ReviewForm"; 
+import ReviewForm from "@/components/ReviewForm";
 
-export const dynamic = "force-dynamic";*/
-
-/*export default function Page() {
+export default function SearchPageContent() {
+  const supabase = getSupabase();
   const searchParams = useSearchParams();
   const address = searchParams.get("address");
 
   const [reviews, setReviews] = useState<any[]>([]);
 
   const fetchReviews = async () => {
+    if (!address) return;
+
     const { data } = await supabase
       .from("reviews")
       .select("*")
@@ -37,7 +26,7 @@ export const dynamic = "force-dynamic";*/
 
   useEffect(() => {
     fetchReviews();
-  }, []);
+  }, [address]);
 
   return (
     <div className="min-h-screen bg-slate-900 text-white p-10">
@@ -52,10 +41,6 @@ export const dynamic = "force-dynamic";*/
           <ReviewCard key={r.id} review={r} />
         ))}
       </div>
-
-      <Suspense fallback={<div className="text-white p-10">Loading...</div>}>
-        <SearchPageContent />
-      </Suspense>
     </div>
   );
-}*/
+}
