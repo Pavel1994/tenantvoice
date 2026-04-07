@@ -13,18 +13,18 @@ export default function SearchPageContent() {
 
   const [reviews, setReviews] = useState<any[]>([]);
 
-  const fetchReviews = async () => {
+  useEffect(() => {
     if (!address) return;
 
-    const { data } = await supabase
-      .from("reviews")
-      .select("*")
-      .eq("address", address);
+    const fetchReviews = async () => {
+      const { data } = await supabase
+        .from("reviews")
+        .select("*")
+        .eq("address", address);
 
-    if (data) setReviews(data);
-  };
+      if (data) setReviews(data);
+    };
 
-  useEffect(() => {
     fetchReviews();
   }, [address]);
 

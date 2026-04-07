@@ -1,4 +1,14 @@
-"use client";
+import dynamic from "next/dynamic";
+
+const SearchPage = dynamic(() => import("./SearchPageContent"), {
+  ssr: false,
+});
+
+export default function Page() {
+  return <SearchPage />;
+}
+
+/*"use client";
 
 import { Suspense } from "react";
 import SearchPageContent from "./SearchPageContent";
@@ -9,7 +19,7 @@ export default function Page() {
       <SearchPageContent />
     </Suspense>
   );
-}
+}*/
 
 //import { useSearchParams } from "next/navigation";
 //import { useEffect, useState } from "react";
