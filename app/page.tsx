@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import SearchBar from "@/components/SearchBar";
 import { getSupabase } from "@/lib/supabase";
-const supabase = getSupabase();
 import {useRouter } from "next/navigation";
 
 type PlaceStats = {
@@ -15,6 +14,7 @@ type PlaceStats = {
 export const dynamic = "force-dynamic";
 
 export default function Home() {
+  const supabase = getSupabase();
   const [worstPlaces, setWorstPlaces] = useState<PlaceStats[]>([]);
   const router = useRouter();
 
