@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import SearchBar from "@/components/SearchBar";
 import { getSupabase, hasSupabaseEnv } from "@/lib/supabase";
+import { siteConfig } from "@/lib/site";
 import type { PlaceStats, Review } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -117,6 +118,27 @@ export default function Home() {
               ))}
             </div>
           )}
+        </div>
+
+        <div className="mt-16 rounded-2xl border border-slate-800 bg-slate-950/70 p-6">
+          <h2 className="text-2xl font-semibold">About TenantVoice</h2>
+          <p className="mt-3 max-w-3xl text-slate-300">
+            TenantVoice is an independent project built to help renters share
+            factual housing experiences before signing a contract. Reviews
+            should focus on property conditions such as mould, cold, noise,
+            maintenance, and overall rental experience.
+          </p>
+          <p className="mt-3 max-w-3xl text-slate-300">
+            If you find a bug, need to report a review, or want to share
+            feedback, contact{" "}
+            <a
+              href={`mailto:${siteConfig.supportEmail}`}
+              className="text-blue-400 hover:underline"
+            >
+              {siteConfig.supportEmail}
+            </a>
+            .
+          </p>
         </div>
       </div>
     </div>
