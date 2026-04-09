@@ -149,7 +149,12 @@ export default function AddressPage() {
 
     if (!email) return;
 
-    const { error } = await supabase.auth.signInWithOtp({ email });
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: window.location.href,
+      },
+    });
 
     if (error) {
       alert(error.message);
