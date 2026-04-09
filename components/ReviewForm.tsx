@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { getSupabase } from "@/lib/supabase";
+import { siteConfig } from "@/lib/site";
 import type { ReviewFormProps } from "@/lib/types";
 
 function normalizeAddress(address: string) {
@@ -81,6 +83,31 @@ export default function ReviewForm({
         placeholder="Write review..."
         className="w-full rounded border border-slate-700 bg-slate-900 p-3 text-white"
       />
+
+      <p className="mt-3 text-sm text-slate-400">
+        Write only factual information about the property or rental experience.
+        Do not include full names, phone numbers, email addresses, private-life
+        details, or accusations you cannot support with facts.
+      </p>
+
+      <p className="mt-2 text-sm text-slate-400">
+        By posting, you agree to the{" "}
+        <Link href="/terms-of-use" className="text-blue-400 hover:underline">
+          Terms of Use
+        </Link>{" "}
+        and{" "}
+        <Link href="/privacy-policy" className="text-blue-400 hover:underline">
+          Privacy Policy
+        </Link>
+        . To report abusive content, email{" "}
+        <a
+          href={`mailto:${siteConfig.supportEmail}`}
+          className="text-blue-400 hover:underline"
+        >
+          {siteConfig.supportEmail}
+        </a>
+        .
+      </p>
 
       <div className="mt-3 flex flex-wrap gap-4 text-white">
         <label className="flex items-center gap-2">

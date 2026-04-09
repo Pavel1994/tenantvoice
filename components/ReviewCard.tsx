@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase";
+import { siteConfig } from "@/lib/site";
 import type { ReviewCardProps } from "@/lib/types";
 import Stars from "./Stars";
 
@@ -275,6 +276,16 @@ export default function ReviewCard({
         >
           Like
         </button>
+        <a
+          href={`mailto:${siteConfig.supportEmail}?subject=${encodeURIComponent(
+            `Report review for ${review.address}`
+          )}&body=${encodeURIComponent(
+            `Please review this report.\n\nAddress: ${review.address}\nReview ID: ${review.id}\nReason: `
+          )}`}
+          className="text-sm text-slate-400 hover:text-white"
+        >
+          Report review
+        </a>
         <span className="text-sm text-slate-400">{likes}</span>
       </div>
     </div>
